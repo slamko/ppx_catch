@@ -18,7 +18,6 @@ let ext_fun ~ctxt arr =
 
      let catch_any_pat = Ast_builder.Default.ppat_any ~loc:eloc in
 
-                           (* )) in *)
      let unknown_err_res = Ast_builder.Default.(pexp_construct
                      ~loc:eloc
                      (Loc.make ~loc:eloc (lident "Error"))
@@ -45,8 +44,13 @@ let ext_fun ~ctxt arr =
                       [case
                          ~lhs:catch_pat
                          ~guard:None
-                         ~rhs:err_res
-                    ]) in
+                         ~rhs:err_res;
+                       case
+                         ~lhs:catch_any_pat
+                         ~guard:None
+                         ~rhs:unknown_err_res
+                      ]
+                    ) in
 
      Ast_builder.Default.(pexp_let ~loc Nonrecursive bindings new_expr)
   | _ ->
@@ -55,7 +59,7 @@ let ext_fun ~ctxt arr =
 let extracter () = Ast_pattern.(single_expr_payload __)
 
 let exten = Extension.V3.declare
-              "mat"
+              "catch"
               Extension.Context.Expression
               (extracter ())
               ext_fun
@@ -63,6 +67,6 @@ let exten = Extension.V3.declare
 let rule = Context_free.Rule.extension exten
 
 let () = 
-  Ppxlib.Driver.register_transformation ~rules:[rule] "mat";
+  Ppxlib.Driver.register_transformation ~rules:[rule] "catch";
   print_endline "Hello, World!";
   ()
