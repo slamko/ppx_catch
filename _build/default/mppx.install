@@ -1,0 +1,20 @@
+lib: [
+  "_build/install/default/lib/mppx/META"
+  "_build/install/default/lib/mppx/dune-package"
+  "_build/install/default/lib/mppx/lib.ml"
+  "_build/install/default/lib/mppx/mppx.a"
+  "_build/install/default/lib/mppx/mppx.cma"
+  "_build/install/default/lib/mppx/mppx.cmi"
+  "_build/install/default/lib/mppx/mppx.cmt"
+  "_build/install/default/lib/mppx/mppx.cmx"
+  "_build/install/default/lib/mppx/mppx.cmxa"
+  "_build/install/default/lib/mppx/mppx.ml"
+  "_build/install/default/lib/mppx/mppx__Lib.cmi"
+  "_build/install/default/lib/mppx/mppx__Lib.cmt"
+  "_build/install/default/lib/mppx/mppx__Lib.cmx"
+  "_build/install/default/lib/mppx/opam"
+]
+libexec: [
+  "_build/install/default/lib/mppx/mppx.cmxs"
+  "_build/install/default/lib/mppx/ppx.exe"
+]
