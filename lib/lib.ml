@@ -1,58 +1,84 @@
 open Ppxlib
 
-let wrap_let_bind loc b =
-     let err_str_loc = Loc.make ~loc "err" in
-     let catch_pat = Ast_builder.Default.(ppat_construct
+let wrap_expr loc expr = 
+  let err_str_loc = Loc.make ~loc "err" in
+  let catch_pat = Ast_builder.Default.(ppat_construct
+                                         ~loc
+                                         (Loc.make ~loc (lident "Failure"))
+                                         (Some
+                                            (ppat_var
+                                               ~loc
+                                               err_str_loc ))) in
+  
+  let catch_any_pat = Ast_builder.Default.ppat_any ~loc in
+
+  let unknown_err_res =
+    Ast_builder.Default.(pexp_construct
                            ~loc
-                           (Loc.make ~loc (lident "Failure"))
-                           (Some
-                              (ppat_var
-                                 ~loc
-                                 err_str_loc ))) in
+                           (Loc.make ~loc (lident "Error"))
+                           (Some (pexp_constant ~loc
+                                    (Pconst_string
+                                       ("unknown error", loc, None))))) in
+  
+  let err_res =
+    Ast_builder.Default.(pexp_construct
+                           ~loc
+                           (Loc.make ~loc (lident "Error"))
+                           (Some (pexp_ident
+                                    ~loc
+                                    (Loc.make ~loc (lident "err"))))) in
+  
+  
+  let ok_expr =
+    Ast_builder.Default.pexp_construct ~loc
+      (Loc.make ~loc (lident "Ok"))
+      (Some expr) in
+  
+  Ast_builder.Default.(pexp_try
+                         ~loc
+                         ok_expr
+                         [case
+                            ~lhs:catch_pat
+                            ~guard:None
+                            ~rhs:err_res;
+                          case
+                            ~lhs:catch_any_pat
+                            ~guard:None
+                            ~rhs:unknown_err_res
+                         ]
+  )
 
-     let catch_any_pat = Ast_builder.Default.ppat_any ~loc in
 
-     let unknown_err_res = Ast_builder.Default.(pexp_construct
-                     ~loc
-                     (Loc.make ~loc (lident "Error"))
-                     (Some (pexp_constant ~loc
-                              (Pconst_string
-                                 ("unknown error", loc, None))))) in
+let wrap_let loc b =
+  let new_expr = wrap_expr loc b.pvb_expr in
+  {
+    pvb_pat = b.pvb_pat;
+    pvb_expr = new_expr;
+    pvb_attributes = b.pvb_attributes;
+    pvb_loc = b.pvb_loc;
+  } 
 
-     let err_res = Ast_builder.Default.(pexp_construct
-                     ~loc
-                     (Loc.make ~loc (lident "Error"))
-                     (Some (pexp_ident
-                              ~loc
-                              (Loc.make ~loc (lident "err"))))) in
- 
+let wrap_let_bind loc bind =
 
-     let ok_expr =
-       Ast_builder.Default.pexp_construct ~loc
-         (Loc.make ~loc (lident "Ok"))
-         (Some b.pvb_expr) in
+  let rec find_wrap expr =
+    match expr.pexp_desc with
+    | Pexp_fun (name, params, pat, fun_exp) ->
+       { pexp_desc = Pexp_fun (name, params, pat, (find_wrap fun_exp));
+         pexp_loc = expr.pexp_loc;
+         pexp_loc_stack = expr.pexp_loc_stack;
+         pexp_attributes = expr.pexp_attributes;
+       }
+    | _ -> wrap_expr loc expr
+  in
 
-     let new_expr = Ast_builder.Default.(pexp_try
-                      ~loc
-                      ok_expr
-                      [case
-                         ~lhs:catch_pat
-                         ~guard:None
-                         ~rhs:err_res;
-                       case
-                         ~lhs:catch_any_pat
-                         ~guard:None
-                         ~rhs:unknown_err_res
-                      ]
-                    ) in
+  let new_expr = find_wrap bind.pvb_expr in
+  {
+    pvb_pat = bind.pvb_pat;
+    pvb_expr = new_expr;
+    pvb_attributes = bind.pvb_attributes;
+    pvb_loc = bind.pvb_loc;
+  } 
 
-     {
-         pvb_pat = b.pvb_pat;
-         pvb_expr = new_expr;
-         pvb_attributes = b.pvb_attributes;
-         pvb_loc = b.pvb_loc;
-     } 
- 
 
 let ext_fun ~ctxt arr =
   let loc = Expansion_context.Extension.extension_point_loc ctxt in
@@ -60,7 +86,14 @@ let ext_fun ~ctxt arr =
   match expr_desc with
   | Pexp_let (recp, bindings, expr) ->
      let eloc = loc in
-     let new_bind = wrap_let_bind eloc @@ List.hd bindings in
+     let bind = List.hd bindings in
+
+     begin match bind.pvb_expr.pexp_desc with
+     | Pexp_apply (exp, args) -> Printf.printf "apply\n";
+     | Pexp_let (exp, args, oo) -> Printf.printf "let\n";
+     | _ -> () end;
+     
+     let new_bind = wrap_let_bind eloc bind in
      Ast_builder.Default.(pexp_let ~loc recp [new_bind] expr)
   | _ ->
      Location.raise_errorf ~loc "Extension applies only to let bindings."
