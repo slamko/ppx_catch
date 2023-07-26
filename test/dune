@@ -2,8 +2,12 @@
   (dev
     (flags (:standard -warn-error -A))))
 
-
+(executable
+ (name pp)
+ (modules pp)
+ (libraries mppx ppxlib))
 
 (test
+  (modules mppx)
  (preprocess (pps mppx))
  (name mppx))

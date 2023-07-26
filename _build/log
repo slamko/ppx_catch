@@ -3,7 +3,7 @@
 # Shared cache: disabled
 # Workspace root: /home/slamko/proj/ocaml/mppx
 # Auto-detected concurrency: 2
-$ /home/slamko/.opam/default/bin/ocamlc.opt -config > /tmp/dune_e714fe_output
+$ /home/slamko/.opam/default/bin/ocamlc.opt -config > /tmp/dune_b84f4d_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -114,3 +114,9 @@ $ /home/slamko/.opam/default/bin/ocamlc.opt -config > /tmp/dune_e714fe_output
 #      ; windows_unicode = false
 #      }
 #  }
+$ (cd _build/.sandbox/c18553a642c54c06cd8250b1c5eeb555/default && .ppx/dde98482002adbbdc37ba77f3d15a91b/ppx.exe -o test/mppx.pp.ml --impl test/mppx.ml -corrected-suffix .ppx-corrected -diff-cmd - -dump-ast)
+> bnum 1
+$ (cd _build/default && /home/slamko/.opam/default/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I test/.mppx.eobjs/byte -I test/.mppx.eobjs/native -intf-suffix .ml -no-alias-deps -opaque -o test/.mppx.eobjs/native/dune__exe__Mppx.cmx -c -impl test/mppx.pp.ml)
+$ (cd _build/default && /home/slamko/.opam/default/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -o test/mppx.exe test/.mppx.eobjs/native/dune__exe__Mppx.cmx)
+$ (cd _build/default/test && ./mppx.exe)
+> error: fuck

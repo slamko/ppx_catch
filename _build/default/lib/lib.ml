@@ -4,8 +4,8 @@ let ext_fun ~ctxt arr =
   let loc = Expansion_context.Extension.extension_point_loc ctxt in
   let expr_desc = arr.pexp_desc in
   match expr_desc with
-  | Pexp_let (Nonrecursive, bindings, expr) ->
-     let eloc = expr.pexp_loc in
+  | Pexp_let (recp, bindings, expr) ->
+     let eloc = loc in
 
      let err_str_loc = Loc.make ~loc:eloc "err" in
      let catch_pat = Ast_builder.Default.(ppat_construct
@@ -38,9 +38,11 @@ let ext_fun ~ctxt arr =
          (Loc.make ~loc:eloc (lident "Ok"))
          (Some expr) in
 
+     Printf.printf "bnum %d\n" @@ List.length bindings ;
+     let b = List.hd bindings in
      let new_expr = Ast_builder.Default.(pexp_try
                       ~loc:eloc
-                      ok_expr
+                      b.pvb_expr
                       [case
                          ~lhs:catch_pat
                          ~guard:None
@@ -52,11 +54,20 @@ let ext_fun ~ctxt arr =
                       ]
                     ) in
 
-     Ast_builder.Default.(pexp_let ~loc Nonrecursive bindings new_expr)
+     let new_bind = {
+         pvb_pat = b.pvb_pat;
+         pvb_expr = new_expr;
+         pvb_attributes = b.pvb_attributes;
+         pvb_loc = b.pvb_loc;
+       } in
+     
+     Ast_builder.Default.(pexp_let ~loc recp [new_bind] expr)
   | _ ->
      Location.raise_errorf ~loc "Extension applies only to let bindings."
 
-let extracter () = Ast_pattern.(single_expr_payload __)
+let extracter () =
+  Ast_pattern.(single_expr_payload __)
+  (* Ast_pattern.(ptop_def __) *)
 
 let exten = Extension.V3.declare
               "catch"
@@ -67,6 +78,5 @@ let exten = Extension.V3.declare
 let rule = Context_free.Rule.extension exten
 
 let () = 
-  Ppxlib.Driver.register_transformation ~rules:[rule] "catch";
-  print_endline "Hello, World!";
+  Driver.register_transformation ~rules:[rule] "catch";
   ()

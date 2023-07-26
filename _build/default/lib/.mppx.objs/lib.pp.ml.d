@@ -1,1 +1,1 @@
-lib/lib.pp.ml: Ast_builder Ast_pattern Context_free Expansion_context Extension Loc Location Ppxlib
+lib/lib.pp.ml: Ast_builder Ast_pattern Context_free Driver Expansion_context Extension List Loc Location Ppxlib Printf
