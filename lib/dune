@@ -4,8 +4,8 @@
 
 
 (library
- (public_name mppx)
- (name mppx)
+ (public_name ppx_catch)
+ (name ppx_catch)
  (libraries ppxlib)
  (kind ppx_rewriter)
  (preprocess

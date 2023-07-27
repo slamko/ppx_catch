@@ -1,26 +1,25 @@
 (lang dune 3.6)
 
-(name mppx)
+(name ppx_catch)
 
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github slamko/ppx_catch))
 
-(authors "Author Name")
+(authors "Viacheslav Chepelyk-Kozhin")
 
-(maintainers "Maintainer Name")
+(maintainers "Viacheslav Chepelyk-Kozhin")
 
-(license LICENSE)
+(license AGPL-3.0-only)
 
-(documentation https://url/to/documentation)
+(documentation https://github.com/slamko/ppx_catch)
 
 (package
- (name mppx)
- (synopsis "A short synopsis")
- (description "A longer description")
+ (name ppx_catch)
+ (synopsis "PPX rewriter that wraps exceptions into result")
  (depends ocaml dune)
  (tags
-  (topics "to describe" your project)))
+  (ppx functional-programming no-exception ppx-rewriter meta-programming)))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project

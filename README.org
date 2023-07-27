@@ -1,0 +1,59 @@
+*** Simple PPX rewriter to catch exceptions and wrap the result into ('a, string) result
+**** Overview
+
+May be useful to handle the case when the function inside List.map fails:
+#+begin_src ocaml
+let%catch func lst =
+  List.map (fun x ->
+    if x > 0 then failwith "Some problem" else x + 1) lst 
+#+end_src
+
+becomes:
+#+begin_src ocaml
+let%catch func lst =
+  try
+    Ok (List.map (fun x ->
+      if x > 0 then failwith "Some problem" else x + 1) lst)
+  with
+  | Failure err -> Error (*[ "func: " + err ]*) (* error messages with tracing *)
+    (* and so on *) ...
+  | _ -> Error "func: Unknown error" 
+#+end_src
+
+
+Extension handles both top-level and "embedded" let bindings:
+#+begin_src ocaml
+let foo =
+  let%catch wants_to_raise () = (* wrap some Stdlib function for example *)
+    (* some logic *)
+    failwith "Stdlib exception" (* call to Stdlib function that raises an exception *)
+  in
+
+  wants_to_raise () (* returns ('a, string) result *)
+#+end_src
+
+Also works with "function" syntax:
+#+begin_src ocaml
+let%catch wrap_function = function
+  | Some res -> res
+  | None -> failwith "function syntax works too"
+#+end_src
+
+It basically wraps each case of the pattern matching.
+#+begin_src ocaml
+let () =
+  match wrap_function None with
+  | Ok ok -> Printf.printf "Ok\n" ;
+  | Error err -> Printf.printf "%s\n" err ;
+  () 
+
+#+end_src
+prints :
+#+begin_src sh
+wrap_function: function syntax works too
+#+end_src
+
+
+
+
+

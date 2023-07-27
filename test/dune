@@ -5,7 +5,7 @@
 (executable
  (name pp)
  (modules pp)
- (libraries mppx ppxlib))
+ (libraries ppx_catch ppxlib))
 
 ; (rule
  ; (targets check.ml)
@@ -13,6 +13,6 @@
  ; (action (run ./%{pp} --impl %{input} -o %{targets})))
 
 (test
-  (modules mppx)
- (preprocess (pps mppx))
+ (modules mppx)
+ (preprocess (pps ppx_catch))
  (name mppx))

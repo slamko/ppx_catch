@@ -10,7 +10,6 @@ let test () =
   | Ok ok -> ok
   | Error err -> failwith err
 
-
 let%catch dup = function
   | Some op -> op
   | None -> failwith "also wrapping function cases"
