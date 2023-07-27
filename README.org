@@ -54,6 +54,31 @@ wrap_function: function syntax works too
 #+end_src
 
 
+**** Quickstart
+
+To instal this rewriter as opam package:
+#+begin_src sh
+git clone https://github.com/slamko/ppx_catch.git &&
+cd ppx_catch &&
+dune build &&
+opam install .
+#+end_src
+
+Now to use it in your project add ppx_catch to library list
+and tell to use it as a preprocessor in your dune file:
+
+#+begin_src lisp
+(libraries
+            ppx_catch)
+(preprocess (pps ppx_catch))
+#+end_src
+
+For a complete dune file example see test/dune
+
+**** LICENSE
+GPL-v3.0
+
+
 
 
 
