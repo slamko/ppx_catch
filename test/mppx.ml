@@ -10,15 +10,21 @@ let test () =
   | Ok ok -> ok
   | Error err -> failwith err
 
+
+let%catch dup = function
+  | Some op -> op
+  | None -> failwith "function does not work"
+
 let%catch dip () =
-  test () 
+  List.map (fun x ->
+    if x > 0 then failwith "Problem" else x + 1) [-1; 0; 0]
 
 let () =
   (* match dip with *)
   (* | Ok ok -> ok *)
   (* | Error err ->  Printf.eprintf "error: %s\n" err;  *)
   (* test (); *)
-  match dip () with
+  match dup (Some 1) with
   | Ok ok -> Printf.printf "Dip ok\n" ;
   | Error err -> Printf.printf "%s\n" err ;
   ()

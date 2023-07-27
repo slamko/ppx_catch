@@ -1,14 +1,25 @@
-let ff a b =
-  try Ok (failwith "ok (not really)" ())
-  with | Failure err -> Error ("ff: " ^ err)
-  | Invalid_argument err -> Error ("ff: " ^ err)
-  | _ -> Error "ff: unknown error"
-let tick () =
+let test () =
   let n a =
-    try Ok (if a > 0 then failwith "fuck" else failwith "sub")
+    try Ok (if a > 0 then failwith "fuck" else ())
     with | Failure err -> Error ("n: " ^ err)
     | Invalid_argument err -> Error ("n: " ^ err)
     | _ -> Error "n: unknown error" in
-  match n 1 with
-  | Ok ok -> (ok |> ignore; ())
-  | Error err -> (Printf.eprintf "error: %s\n" err; ())
+  match n 1 with | Ok ok -> ok | Error err -> failwith err
+let dup =
+  try
+    Ok (function | Some op -> op | None -> failwith "function does not work")
+  with | Failure err -> Error ("dup: " ^ err)
+  | Invalid_argument err -> Error ("dup: " ^ err)
+  | _ -> Error "dup: unknown error"
+let dip () =
+  try
+    Ok
+      (List.map (fun x -> if x > 0 then failwith "Problem" else x + 1)
+         [(-1); 0; 0])
+  with | Failure err -> Error ("dip: " ^ err)
+  | Invalid_argument err -> Error ("dip: " ^ err)
+  | _ -> Error "dip: unknown error"
+let () =
+  match dip () with
+  | Ok ok -> Printf.printf "Dip ok\n"
+  | Error err -> (Printf.printf "%s\n" err; ())

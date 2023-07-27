@@ -1,28 +1,20 @@
 open Ppxlib
 
-let throw err =
-  raise_notrace @@ Failure err
-
-let wrap_expr loc pat_name expr = 
-
-  let failure_catch_pat =
-    Ast_builder.Default.(ppat_construct
+let catch_constr_build loc constr_name =
+  Ast_builder.Default.(ppat_construct
                            ~loc
-                           (Loc.make ~loc (lident "Failure"))
+                           (Loc.make ~loc (lident constr_name))
                            (Some
                               (ppat_var ~loc
                                  (Loc.make ~loc "err" )
-                                 ))) in
+                                 ))) 
+
+let wrap_expr loc pat_name expr =
+
+  let failure_catch_pat = catch_constr_build loc "Failure" in
  
-  let invarg_catch_pat =
-    Ast_builder.Default.(ppat_construct
-                           ~loc
-                           (Loc.make ~loc (lident "Invalid_argument"))
-                           (Some
-                              (ppat_var ~loc
-                                 (Loc.make ~loc "err")
-                                 ))) in
-  
+  let invarg_catch_pat = catch_constr_build loc "Invalid_argument" in
+
   let catch_any_pat = Ast_builder.Default.ppat_any ~loc in
 
   let unknown_err_res =
