@@ -105,6 +105,18 @@ let wrap_let_bind loc bind =
          pexp_loc_stack = expr.pexp_loc_stack;
          pexp_attributes = expr.pexp_attributes;
        }
+    | Pexp_function case_list ->
+       let wrapped_case_list =
+         List.map (fun case ->
+             { pc_lhs = case.pc_lhs;
+               pc_guard = case.pc_guard;
+               pc_rhs = wrap_expr loc pat_name case.pc_rhs;
+           }) case_list in
+       { pexp_desc = Pexp_function wrapped_case_list;
+         pexp_loc = expr.pexp_loc;
+         pexp_loc_stack = expr.pexp_loc_stack;
+         pexp_attributes = expr.pexp_attributes;
+       }
     | _ -> wrap_expr loc pat_name expr
   in
 

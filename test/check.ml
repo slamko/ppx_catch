@@ -6,11 +6,17 @@ let test () =
     | _ -> Error "n: unknown error" in
   match n 1 with | Ok ok -> ok | Error err -> failwith err
 let dup =
-  try
-    Ok (function | Some op -> op | None -> failwith "function does not work")
-  with | Failure err -> Error ("dup: " ^ err)
-  | Invalid_argument err -> Error ("dup: " ^ err)
-  | _ -> Error "dup: unknown error"
+  function
+  | Some op ->
+      (try Ok op
+       with | Failure err -> Error ("dup: " ^ err)
+       | Invalid_argument err -> Error ("dup: " ^ err)
+       | _ -> Error "dup: unknown error")
+  | None ->
+      (try Ok (failwith "function does not work")
+       with | Failure err -> Error ("dup: " ^ err)
+       | Invalid_argument err -> Error ("dup: " ^ err)
+       | _ -> Error "dup: unknown error")
 let dip () =
   try
     Ok

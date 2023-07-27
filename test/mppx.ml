@@ -13,7 +13,7 @@ let test () =
 
 let%catch dup = function
   | Some op -> op
-  | None -> failwith "function does not work"
+  | None -> failwith "also wrapping function cases"
 
 let%catch dip () =
   List.map (fun x ->
@@ -24,7 +24,7 @@ let () =
   (* | Ok ok -> ok *)
   (* | Error err ->  Printf.eprintf "error: %s\n" err;  *)
   (* test (); *)
-  match dup (Some 1) with
+  match dup (None) with
   | Ok ok -> Printf.printf "Dip ok\n" ;
   | Error err -> Printf.printf "%s\n" err ;
   ()
