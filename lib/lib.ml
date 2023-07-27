@@ -63,7 +63,8 @@ let wrap_let_bind loc bind =
   let rec find_wrap expr =
     match expr.pexp_desc with
     | Pexp_fun (name, params, pat, fun_exp) ->
-       { pexp_desc = Pexp_fun (name, params, pat, (find_wrap fun_exp));
+       { pexp_desc =
+           Pexp_fun (name, params, pat, (find_wrap fun_exp));
          pexp_loc = expr.pexp_loc;
          pexp_loc_stack = expr.pexp_loc_stack;
          pexp_attributes = expr.pexp_attributes;
@@ -88,18 +89,12 @@ let ext_fun ~ctxt arr =
      let eloc = loc in
      let bind = List.hd bindings in
 
-     begin match bind.pvb_expr.pexp_desc with
-     | Pexp_apply (exp, args) -> Printf.printf "apply\n";
-     | Pexp_let (exp, args, oo) -> Printf.printf "let\n";
-     | _ -> () end;
-     
      let new_bind = wrap_let_bind eloc bind in
      Ast_builder.Default.(pexp_let ~loc recp [new_bind] expr)
   | _ ->
      Location.raise_errorf ~loc "Extension applies only to let bindings."
 
-let extracter () =
-  Ast_pattern.(single_expr_payload __)
+(* let extracter () = *)
   (* Ast_pattern.(ptop_def __) *)
 
 let top_ext ~ctxt arr =
@@ -118,26 +113,33 @@ let top_ext ~ctxt arr =
         }
      | _ -> Location.raise_errorf
               ~loc "Extension applies only to let bindings." end
+  (* | PPat (pat, expr) -> *)
+     (* match expr with *)
+     (* | Some expr ->  *)
+        (* { *)
+          (* pstr_desc = PPat(pat, expr); *)
+          (* pstr_loc = st_item.pstr_loc; *)
+        (* } *)
   | _ ->
      Location.raise_errorf ~loc "Extension applies only to let bindings."
-
-let top = Extension.V3.declare
-            "try"
-            Extension.Context.Structure_item
-            Ast_pattern.__
-            top_ext
 
 
 let exten = Extension.V3.declare
               "catch"
               Extension.Context.Expression
-              (extracter ())
+              Ast_pattern.(single_expr_payload __)
               ext_fun
+
+let top = Extension.V3.declare
+            "catch"
+            Extension.Context.Structure_item
+            Ast_pattern.__
+            top_ext
 
 let rule = Context_free.Rule.extension exten
 let top_rule = Context_free.Rule.extension top
 
 let () = 
-  Driver.register_transformation ~rules:[rule] "catch";
-  Driver.register_transformation ~rules:[top_rule] "try";
+  Driver.register_transformation ~rules:[rule] "wrap";
+  Driver.register_transformation ~rules:[top_rule] "catch";
   ()

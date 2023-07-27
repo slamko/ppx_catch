@@ -1,6 +1,6 @@
-(* let%try dip () = *)
-  (* failwith "try fuck"; *)
-  (* () *)
+let%catch dip () =
+  failwith "try fuck";
+  ()
 
 let test () =
   let%catch n a =
@@ -9,7 +9,7 @@ let test () =
     else ()
   in
 
-  match n (-1) with
+  match n (1) with
   | Ok ok -> Printf.printf "ok\n"; ()
   | Error err -> Printf.eprintf "error: %s\n" err; ()
 
